@@ -493,15 +493,17 @@
             // Calcula valores para cada linha
             for (let i = 1; i <= 21; i++) {
                 const juros = obterTaxaJuros(i, bandeira);
-                const valorFechado = calcularValorFechado(valorInicial, juros); // Valor total a cobrar
-                const valorDesc = calcularValorDesc(valorInicial, juros); // Valor total a receber
-                const valorParcelaReceber = valorDesc / i; // Valor por parcela a receber
-                const valorParcelaCobrar = valorFechado / i; // Valor por parcela a cobrar
+                // Valor a receber se passar o valorInicial
+                const valorReceber = calcularValorDesc(valorInicial, juros);
+                // Valor a cobrar para receber o valorInicial líquido
+                const valorCobrar = calcularValorFechado(valorInicial, juros);
+                const valorParcelaReceber = valorReceber / i; // Parcela a receber
+                const valorParcelaCobrar = valorCobrar / i; // Parcela a pagar
 
                 // Atualiza tabela
                 document.getElementById("juros" + i).textContent = (juros * 100).toFixed(2) + "%";
-                document.getElementById("valorDesc" + i).textContent = valorDesc.toFixed(2);
-                document.getElementById("valorFechado" + i).textContent = valorFechado.toFixed(2);
+                document.getElementById("valorDesc" + i).textContent = valorReceber.toFixed(2);
+                document.getElementById("valorFechado" + i).textContent = valorCobrar.toFixed(2);
                 document.getElementById("valorParcelaReceber" + i).textContent = valorParcelaReceber.toFixed(2);
                 document.getElementById("valorParcelaCobrar" + i).textContent = valorParcelaCobrar.toFixed(2);
 
@@ -572,10 +574,12 @@
         }
 
         function calcularValorFechado(valor, juros) {
+            // Calcula o valor a cobrar para receber 'valor' líquido
             return valor / (1 - juros);
         }
 
         function calcularValorDesc(valor, juros) {
+            // Calcula o valor a receber se passar 'valor'
             return valor * (1 - juros);
         }
 
@@ -593,11 +597,11 @@
             // Obtém a taxa de juros para o número de parcelas
             const juros = obterTaxaJuros(parcelas, bandeira);
 
-            // Cenário 1: Cliente passa o valor inicial
+            // Cenário 1: Cliente passa o valorInicial
             const valorRecebido = calcularValorDesc(valorInicial, juros);
             const parcelaRecebida = valorRecebido / parcelas;
 
-            // Cenário 2: Cliente quer receber o valor inicial
+            // Cenário 2: Cliente quer receber o valorInicial
             const valorPassado = calcularValorFechado(valorInicial, juros);
             const parcelaPassada = valorPassado / parcelas;
 
