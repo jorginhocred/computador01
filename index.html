@@ -32,9 +32,11 @@
         }
 
         .header-image {
-            width: 100%;
+            width: 70%; /* Reduzido em 30% */
             height: auto;
-            margin-bottom: 20px;
+            margin: 0 auto 20px;
+            display: block;
+            object-fit: contain; /* Garante que a imagem não seja cortada */
         }
 
         h1, h2 {
@@ -177,6 +179,59 @@
             margin: 20px auto;
         }
 
+        /* Estilo para a tabela do screenshot */
+        .screenshot-container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-family: 'Exo 2', sans-serif;
+            color: #000000;
+            width: 500px;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .screenshot-container img {
+            max-width: 80%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .screenshot-container h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 10px 0;
+            color: #FFD700;
+            text-shadow: 0 0 4px #000000;
+        }
+
+        .screenshot-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .screenshot-table th, .screenshot-table td {
+            padding: 10px;
+            border: 1px solid #FFD700;
+            font-size: 1rem;
+            text-align: left;
+        }
+
+        .screenshot-table th {
+            background: linear-gradient(45deg, #FFD700, #ffffff);
+            color: #000000;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+        }
+
+        .screenshot-table td {
+            background: #f9f9f9;
+            color: #000000;
+        }
+
         @media (max-width: 600px) {
             h1 {
                 font-size: 1.5rem;
@@ -194,13 +249,22 @@
             .container {
                 padding: 15px;
             }
+
+            .screenshot-container {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .screenshot-container img {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Cabeçalho com a imagem -->
-        <img src="https://uploaddeimagens.com.br/images/004/896/985/full/img.jpg?1746713575" alt="Banner Jorginho Cred" class="header-image">
+        <img src="https://uploaddeimagens.com.br/images/004/897/259/full/ef55e039-2156-4b7b-bf14-fd72df4c9e05.png?1746789474" alt="Banner Jorginho Cred" class="header-image">
 
         <!-- Título da tabela -->
         <h2>Tabela de Taxas</h2>
@@ -217,7 +281,7 @@
             <option value="visa-master">Visa/Master</option>
         </select>
 
-        <button onclick="tirarScreenshot()">Tirar Screenshot da Simulação</button>
+        <button onclick="tirarScreenshot()">Gerar Print</button>
 
         <table id="tabelaSimulacao">
             <thead>
@@ -226,8 +290,8 @@
                     <th>Juros</th>
                     <th>Valor a Receber</th>
                     <th>Valor a Cobrar</th>
-                    <th>Valor da Parcela a Receber</th>
-                    <th>Valor da Parcela a Cobrar</th>
+                    <th>Parcela Recebida</th>
+                    <th>Parcela a Pagar</th>
                 </tr>
             </thead>
             <tbody>
@@ -404,7 +468,7 @@
     </div>
 
     <!-- Canvas para o screenshot -->
-    <canvas id="screenshotCanvas" width="600" height="400"></canvas>
+    <canvas id="screenshotCanvas" width="500" height="400"></canvas>
 
     <script>
         function calcularValores() {
@@ -496,29 +560,95 @@
                 return;
             }
 
-            const tabela = document.getElementById("tabelaSimulacao");
+            // Obtém a taxa de juros para o número de parcelas
+            const juros = obterTaxaJuros(parcelas);
+
+            // Cenário 1: Cliente passa o valor inicial
+            const valorRecebido = calcularValorDesc(valorInicial, juros);
+            const parcelaRecebida = valorRecebido / parcelas;
+
+            // Cenário 2: Cliente quer receber o valor inicial
+            const valorPassado = calcularValorFechado(valorInicial, juros);
+            const parcelaPassada = valorPassado / parcelas;
+
+            // Cria um container temporário para o screenshot
+            const screenshotContainer = document.createElement("div");
+            screenshotContainer.className = "screenshot-container";
+            screenshotContainer.innerHTML = `
+                <h3>Simulação de Empréstimo</h3>
+                <table class="screenshot-table">
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="2" style="background: #FFD700; color: #000000; font-weight: bold;">Se você passa R$${valorInicial.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td>Você recebe</td>
+                            <td>R$${valorRecebido.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td>Parcela a Pagar</td>
+                            <td>${parcelas}x R$${parcelaRecebida.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="background: #FFD700; color: #000000; font-weight: bold;">Se você quer receber R$${valorInicial.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td>Você passa</td>
+                            <td>R$${valorPassado.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td>Parcela a Pagar</td>
+                            <td>${parcelas}x R$${parcelaPassada.toFixed(2)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            // Adiciona o container temporariamente ao corpo
+            document.body.appendChild(screenshotContainer);
+
+            // Configura o canvas
             const canvas = document.getElementById("screenshotCanvas");
+            canvas.width = 500;
+            canvas.height = 400; // Reduzido, pois não há logo
             const ctx = canvas.getContext("2d");
 
-            // Define as dimensões do canvas com base na tabela
-            canvas.width = tabela.offsetWidth;
-            canvas.height = tabela.offsetHeight;
+            // Limpa o canvas antes de desenhar
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Desenha a tabela no canvas
-            html2canvas(tabela).then(function(canvasImg) {
-                ctx.drawImage(canvasImg, 0, 0);
+            // Usa html2canvas para capturar o container
+            html2canvas(screenshotContainer, {
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: "#ffffff",
+                scale: 2 // Aumenta a resolução para melhor qualidade
+            }).then(canvasImg => {
+                ctx.drawImage(canvasImg, 0, 0, canvas.width, canvas.height);
 
-                // Converte o canvas para uma imagem e cria um link para download
+                // Cria o link para download
                 const link = document.createElement("a");
                 link.download = `simulacao_${new Date().toISOString().slice(0, 10)}.png`;
                 link.href = canvas.toDataURL("image/png");
                 link.click();
 
-                // Opcional: Exibe o canvas temporariamente para visualização
+                // Remove o container temporário
+                document.body.removeChild(screenshotContainer);
+
+                // Exibe o canvas temporariamente para visualização
                 canvas.style.display = "block";
                 setTimeout(() => {
                     canvas.style.display = "none";
                 }, 2000);
+            }).catch(err => {
+                console.error("Erro ao gerar screenshot:", err);
+                alert("Ocorreu um erro ao gerar o print. Tente novamente.");
+                document.body.removeChild(screenshotContainer);
             });
         }
 
