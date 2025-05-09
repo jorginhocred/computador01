@@ -264,7 +264,7 @@
 <body>
     <div class="container">
         <!-- Cabeçalho com a imagem -->
-        <img src="https://uploaddeimagens.com.br/images/004/897/259/full/ef55e039-2156-4b7b-bf14-fd72df4c9e05.png?1746789474" alt="Banner Jorginho Cred" class="header-image">
+        <img src="https://uploaddeimagens.com.br/images/004/897/265/original/JORGINHOCRED.jpg?1746792605" alt="Banner Jorginho Cred" class="header-image">
 
         <!-- Título da tabela -->
         <h2>Tabela de Taxas</h2>
@@ -492,7 +492,7 @@
 
             // Calcula valores para cada linha
             for (let i = 1; i <= 21; i++) {
-                const juros = obterTaxaJuros(i);
+                const juros = obterTaxaJuros(i, bandeira);
                 const valorFechado = calcularValorFechado(valorInicial, juros); // Valor total a cobrar
                 const valorDesc = calcularValorDesc(valorInicial, juros); // Valor total a receber
                 const valorParcelaReceber = valorDesc / i; // Valor por parcela a receber
@@ -515,8 +515,8 @@
             }
         }
 
-        function obterTaxaJuros(parcela) {
-            const taxas = {
+        function obterTaxaJuros(parcela, bandeira) {
+            const taxasBanese = {
                 1: 0.078,
                 2: 0.088,
                 3: 0.098,
@@ -539,7 +539,36 @@
                 20: 0.223,
                 21: 0.2345
             };
-            return taxas[parcela] || 0.2345; // Usa a taxa de 21x como padrão se ultrapassar
+
+            const taxasVisaMaster = {
+                1: 0.063,
+                2: 0.073,
+                3: 0.083,
+                4: 0.088,
+                5: 0.093,
+                6: 0.096,
+                7: 0.107,
+                8: 0.11,
+                9: 0.12,
+                10: 0.1095,
+                11: 0.12,
+                12: 0.127,
+                13: 0.153,
+                14: 0.163,
+                15: 0.167,
+                16: 0.173,
+                17: 0.183,
+                18: 0.187,
+                19: 0.203,
+                20: 0.208,
+                21: 0.2195
+            };
+
+            if (bandeira === "visa-master") {
+                return taxasVisaMaster[parcela] || 0.2195; // Usa a taxa de 21x como padrão se ultrapassar
+            } else {
+                return taxasBanese[parcela] || 0.2345; // Usa a taxa de 21x como padrão se ultrapassar
+            }
         }
 
         function calcularValorFechado(valor, juros) {
@@ -553,6 +582,7 @@
         function tirarScreenshot() {
             const valorInicial = parseFloat(document.getElementById("valorInicial").value) || 0;
             const parcelas = parseInt(document.getElementById("parcelas").value) || 0;
+            const bandeira = document.getElementById("bandeira").value;
 
             // Validação
             if (valorInicial <= 0 || parcelas < 1 || parcelas > 21) {
@@ -561,7 +591,7 @@
             }
 
             // Obtém a taxa de juros para o número de parcelas
-            const juros = obterTaxaJuros(parcelas);
+            const juros = obterTaxaJuros(parcelas, bandeira);
 
             // Cenário 1: Cliente passa o valor inicial
             const valorRecebido = calcularValorDesc(valorInicial, juros);
