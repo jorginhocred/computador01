@@ -497,7 +497,7 @@
                 const valorReceber = calcularValorDesc(valorInicial, juros);
                 // Valor a cobrar para receber o valorInicial líquido
                 const valorCobrar = calcularValorFechado(valorInicial, juros);
-                const valorParcelaReceber = valorReceber / i; // Parcela a receber
+                const valorParcelaReceber = valorInicial / i; // Parcela a receber = Valor Inicial / Número de Parcelas
                 const valorParcelaCobrar = valorCobrar / i; // Parcela a pagar
 
                 // Atualiza tabela
@@ -529,7 +529,7 @@
                 8: 0.125,
                 9: 0.135,
                 10: 0.1245,
-                11: 0.1350,
+                11: 0.135,
                 12: 0.142,
                 13: 0.168,
                 14: 0.178,
@@ -575,12 +575,12 @@
 
         function calcularValorFechado(valor, juros) {
             // Calcula o valor a cobrar para receber 'valor' líquido
-            return valor / (1 - juros);
+            return valor * (1 + juros);
         }
 
         function calcularValorDesc(valor, juros) {
             // Calcula o valor a receber se passar 'valor'
-            return valor * (1 - juros);
+            return valor / (1 + juros);
         }
 
         function tirarScreenshot() {
@@ -644,7 +644,7 @@
                 </table>
             `;
 
-            // Adiciona o container temporariamente ao corpo
+            // Adiciona o container temporário ao corpo
             document.body.appendChild(screenshotContainer);
 
             // Configura o canvas
